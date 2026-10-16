@@ -1,0 +1,1 @@
+# ms-barriodigital-rabbitmq-admin
