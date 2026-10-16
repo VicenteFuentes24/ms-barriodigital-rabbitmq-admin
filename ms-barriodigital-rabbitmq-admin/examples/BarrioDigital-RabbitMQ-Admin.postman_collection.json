@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "BarrioDigital RabbitMQ Admin - local",
+    "description": "Usar credenciales HTTP locales separadas del broker. Solo recursos ep3.demo.*. La API bloquea recursos operativos y borrados no seguros.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": { "type": "basic", "basic": [
+    { "key": "username", "value": "{{adminUsername}}", "type": "string" },
+    { "key": "password", "value": "{{adminPassword}}", "type": "string" }
+  ] },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8088" },
+    { "key": "adminUsername", "value": "" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "queueName", "value": "ep3.demo.queue" },
+    { "key": "exchangeName", "value": "ep3.demo.direct" }
+  ],
+  "item": [
+    { "name": "1 - Health protegido", "request": { "method": "GET", "url": "{{baseUrl}}/actuator/health" } },
+    { "name": "2 - Crear cola", "request": {
+      "method": "POST", "url": "{{baseUrl}}/api/rabbitmq/queues",
+      "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Admin-Request", "value": "true" }],
+      "body": { "mode": "raw", "raw": "{\"name\":\"{{queueName}}\",\"durable\":true,\"exclusive\":false,\"autoDelete\":false}" }
+    } },
+    { "name": "3 - Crear exchange direct", "request": {
+      "method": "POST", "url": "{{baseUrl}}/api/rabbitmq/exchanges",
+      "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Admin-Request", "value": "true" }],
+      "body": { "mode": "raw", "raw": "{\"name\":\"{{exchangeName}}\",\"type\":\"direct\",\"durable\":true,\"autoDelete\":false}" }
+    } },
+    { "name": "4 - Crear binding", "request": {
+      "method": "POST", "url": "{{baseUrl}}/api/rabbitmq/bindings",
+      "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Admin-Request", "value": "true" }],
+      "body": { "mode": "raw", "raw": "{\"exchange\":\"{{exchangeName}}\",\"queue\":\"{{queueName}}\",\"routingKey\":\"demo.created\"}" }
+    } },
+    { "name": "5 - Consultar contadores reales", "request": { "method": "GET", "url": "{{baseUrl}}/api/rabbitmq/queues/{{queueName}}" } },
+    { "name": "6 - Eliminar binding", "request": {
+      "method": "DELETE", "url": "{{baseUrl}}/api/rabbitmq/bindings",
+      "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Admin-Request", "value": "true" }],
+      "body": { "mode": "raw", "raw": "{\"exchange\":\"{{exchangeName}}\",\"queue\":\"{{queueName}}\",\"routingKey\":\"demo.created\"}" }
+    } },
+    { "name": "7 - Eliminar exchange sin bindings", "request": {
+      "method": "DELETE", "url": "{{baseUrl}}/api/rabbitmq/exchanges/{{exchangeName}}",
+      "header": [{ "key": "X-Admin-Request", "value": "true" }]
+    } },
+    { "name": "8 - Eliminar cola vacia y sin consumidores", "request": {
+      "method": "DELETE", "url": "{{baseUrl}}/api/rabbitmq/queues/{{queueName}}",
+      "header": [{ "key": "X-Admin-Request", "value": "true" }]
+    } }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ep3.demo.queue",
+  "durable": true,
+  "exclusive": false,
+  "autoDelete": false
+}

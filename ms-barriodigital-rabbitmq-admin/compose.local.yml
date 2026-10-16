@@ -1,0 +1,27 @@
+name: barriodigital-rabbitmq-admin
+services:
+  rabbitmq-admin:
+    image: barriodigital-rabbitmq-admin:local
+    build: .
+    environment:
+      SERVER_PORT: 8088
+      SERVER_ADDRESS: 0.0.0.0
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:?Define RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?Define RABBITMQ_PASSWORD}
+      RABBITMQ_VIRTUAL_HOST: ${RABBITMQ_VIRTUAL_HOST:-barriodigital}
+      ADMIN_HTTP_USERNAME: ${ADMIN_HTTP_USERNAME:?Define ADMIN_HTTP_USERNAME}
+      ADMIN_HTTP_PASSWORD: ${ADMIN_HTTP_PASSWORD:?Define ADMIN_HTTP_PASSWORD}
+    ports:
+      - "127.0.0.1:${SERVER_PORT:-8088}:8088"
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    networks: [barriodigital-net]
+networks:
+  barriodigital-net:
+    external: true
+    name: ${BARRIODIGITAL_NETWORK_NAME:-infra-barriodigital_barriodigital-net}
